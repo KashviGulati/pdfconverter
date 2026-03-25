@@ -1,27 +1,61 @@
-<input type="file" id="file" />
-<button onclick="upload()">Upload</button>
+<!DOCTYPE html>
 
-<script>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>PDF Converter Test</title>
+</head>
+<body>
+
+  <h2>Upload file to convert to PDF</h2>
+
+  <input type="file" id="file" />
+  <button onclick="upload()">Upload</button>
+
+  <p id="status"></p>
+
+  <script>
 function upload() {
-  const file = document.getElementById("file").files[0];
+  const fileInput = document.getElementById("file");
+
+  if (!fileInput.files.length) {
+    alert("Select a file first");
+    return;
+  }
+
+  const file = fileInput.files[0];
   const formData = new FormData();
   formData.append("file", file);
 
-  fetch("http://localhost:5000/convert", {
+  fetch("https://pdfconverter-x2iw.onrender.com/convert", {
     method: "POST",
     headers: {
-      "x-api-key": "123"   // ⚠️ MUST match your .env
+      "x-api-key": "test"
     },
     body: formData
   })
-  .then(res => {
-    if (!res.ok) throw new Error("Request failed");
+  .then(async (res) => {
+    console.log("STATUS:", res.status);
+
+    if (!res.ok) {
+      const text = await res.text();
+      throw new Error(text);
+    }
+
     return res.blob();
   })
-  .then(blob => {
+  .then((blob) => {
     const url = URL.createObjectURL(blob);
-    window.open(url);
+
+    // 👇 OPEN directly in same tab
+    // window.location.href = url;
+
+    // OR if you want new tab:
+    window.open(url, "_blank");
   })
-  .catch(err => console.error("Error:", err));
+  .catch(err => console.error(err));
 }
 </script>
+
+</body>
+</html>
