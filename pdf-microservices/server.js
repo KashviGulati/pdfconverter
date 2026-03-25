@@ -17,7 +17,7 @@ const libreOfficePath = "soffice";
 // 🔥 Only allow these origins
 const allowedOrigins = [
   "http://127.0.0.1:5500",
-  "https://www.docuvio.co.in/",
+  "https://www.docuvio.co.in",
 ];
 
 app.use((req, res, next) => {
