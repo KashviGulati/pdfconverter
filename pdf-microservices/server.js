@@ -11,14 +11,13 @@ const app = express();
 // ================= CONFIG =================
 const PORT = process.env.PORT || 5000;
 
-const libreOfficePath = `"C:\\Program Files\\LibreOffice\\program\\soffice.exe"`;
-
+const libreOfficePath = "soffice";
 // ================= STRICT CORS =================
 
 // 🔥 Only allow these origins
 const allowedOrigins = [
   "http://127.0.0.1:5500",
-  "https://www.docuvio.co.in/"
+  "https://www.docuvio.co.in/",
 ];
 
 app.use((req, res, next) => {
