@@ -25,29 +25,27 @@ const allowedOrigins = [
 app.use((req, res, next) => {
   const origin = req.headers.origin;
 
-  // ❌ Block if no origin (Postman, curl, etc.)
+  // ✅ Allow mobile apps (no origin)
   if (!origin) {
-    return res.status(403).json({ message: "Blocked: No origin" });
+    return next();
   }
 
-  // ❌ Block if origin not allowed
+  // ❌ Block unknown origins
   if (!allowedOrigins.includes(origin)) {
     return res.status(403).json({ message: "Blocked by CORS" });
   }
 
-  // ✅ Manually set headers
+  // ✅ Allow known origins
   res.setHeader("Access-Control-Allow-Origin", origin);
   res.setHeader("Access-Control-Allow-Methods", "GET,POST,OPTIONS");
   res.setHeader("Access-Control-Allow-Headers", "Content-Type, x-api-key");
 
-  // Handle preflight
   if (req.method === "OPTIONS") {
     return res.sendStatus(200);
   }
 
   next();
 });
-
 // ================= API KEY =================
 
 app.use((req, res, next) => {
