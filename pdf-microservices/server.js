@@ -8,8 +8,7 @@ require("dotenv").config();
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-const libreOfficePath =
-  `"C:\\Program Files\\LibreOffice\\program\\soffice.exe"`; // change in docker
+const libreOfficePath = "soffice"; // change in docker
 
 // ================= CORS =================
 const allowedOrigins = [
