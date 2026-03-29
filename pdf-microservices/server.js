@@ -1,25 +1,21 @@
 const express = require("express");
 const multer = require("multer");
-const cors = require("cors");
-const { exec } = require("child_process");
 const path = require("path");
 const fs = require("fs");
+const { exec } = require("child_process");
 require("dotenv").config();
 
 const app = express();
-
-// ================= CONFIG =================
 const PORT = process.env.PORT || 5000;
 
-const libreOfficePath = "soffice";
-// ================= STRICT CORS =================
+const libreOfficePath =
+  `"C:\\Program Files\\LibreOffice\\program\\soffice.exe"`; // change in docker
 
-// 🔥 Only allow these origins
+// ================= CORS =================
 const allowedOrigins = [
   "http://127.0.0.1:5500",
-  "https://www.docuvio.co.in",
-  "http://127.0.0.1:5173",
-  "http://localhost:5173"
+  "http://localhost:5173",
+  "https://www.docuvio.co.in/"
 ];
 
 app.use((req, res, next) => {
@@ -46,89 +42,74 @@ app.use((req, res, next) => {
 
   next();
 });
-// ================= API KEY =================
 
+// ================= API KEY =================
 app.use((req, res, next) => {
   const apiKey = req.headers["x-api-key"];
-
   if (!apiKey || apiKey !== process.env.API_KEY) {
     return res.status(403).json({ message: "Unauthorized" });
   }
-
   next();
 });
 
 // ================= MULTER =================
-
-const upload = multer({
-  dest: "uploads/",
-  limits: { fileSize: 10 * 1024 * 1024 }
+const storage = multer.diskStorage({
+  destination: "uploads/",
+  filename: (req, file, cb) => {
+    const ext = path.extname(file.originalname);
+    cb(null, Date.now() + ext);
+  }
 });
 
-// Allowed file types
-const allowedTypes = [
-  "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-  "application/pdf",
-  "image/jpeg",
-  "image/png",
-  "text/plain"
-];
+const upload = multer({ storage });
 
 // ================= ROUTE =================
-
 app.post("/convert", upload.single("file"), (req, res) => {
-  if (!req.file) {
-    return res.status(400).json({ message: "No file uploaded" });
-  }
-
-  // File validation
-  if (!allowedTypes.includes(req.file.mimetype)) {
-    fs.unlinkSync(req.file.path);
-    return res.status(400).json({ message: "Unsupported file type" });
-  }
+  if (!req.file) return res.status(400).json({ message: "No file" });
 
   const inputPath = req.file.path;
   const outputDir = path.resolve("output");
 
-  if (!fs.existsSync(outputDir)) {
-    fs.mkdirSync(outputDir);
-  }
+  if (!fs.existsSync(outputDir)) fs.mkdirSync(outputDir);
 
   const command = `${libreOfficePath} --headless --convert-to pdf "${inputPath}" --outdir "${outputDir}"`;
 
   exec(command, (err) => {
     if (err) {
-      console.error("Conversion error:", err);
+      console.error(err);
       return res.status(500).json({ message: "Conversion failed" });
     }
 
     const pdfName = path.parse(req.file.filename).name + ".pdf";
     const pdfPath = path.join(outputDir, pdfName);
 
-    res.download(pdfPath, (downloadErr) => {
-      if (downloadErr) {
-        console.error("Download error:", downloadErr);
-      }
+    if (!fs.existsSync(pdfPath)) {
+      return res.status(500).json({ message: "PDF not found" });
+    }
 
-      // Cleanup
-      try {
-        if (fs.existsSync(inputPath)) fs.unlinkSync(inputPath);
-        if (fs.existsSync(pdfPath)) fs.unlinkSync(pdfPath);
-      } catch (cleanupErr) {
-        console.error("Cleanup error:", cleanupErr);
-      }
+    // ✅ IMPORTANT: INLINE VIEW (not download)
+    res.setHeader("Content-Type", "application/pdf");
+    res.setHeader("Content-Disposition", "inline");
+
+    const stream = fs.createReadStream(pdfPath);
+    stream.pipe(res);
+
+    stream.on("end", () => {
+      console.log("Stream finished, cleaning up");
+
+      setTimeout(() => {
+        try {
+          fs.unlinkSync(inputPath);
+          fs.unlinkSync(pdfPath);
+        } catch (e) {
+          console.error("Cleanup error", e);
+        }
+      }, 2000);
     });
   });
 });
 
-// ================= HEALTH =================
-
-app.get("/", (req, res) => {
-  res.send("PDF Microservice Running 🚀");
-});
-
 // ================= START =================
-
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });

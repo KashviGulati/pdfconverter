@@ -1,60 +1,39 @@
 <!DOCTYPE html>
-
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <title>PDF Converter Test</title>
-</head>
+<html>
 <body>
 
-  <h2>Upload file to convert to PDF</h2>
+<input type="file" id="file" />
+<button id="btn">Upload</button>
 
-  <input type="file" id="file" />
-  <button onclick="upload()">Upload</button>
+<script>
+document.getElementById("btn").addEventListener("click", async (e) => {
+  e.preventDefault();
 
-  <p id="status"></p>
+  const file = document.getElementById("file").files[0];
+  if (!file) return alert("Select file");
 
-  <script>
-function upload() {
-  const fileInput = document.getElementById("file");
-
-  if (!fileInput.files.length) {
-    alert("Select a file first");
-    return;
-  }
-
-  const file = fileInput.files[0];
   const formData = new FormData();
   formData.append("file", file);
 
-  fetch("https://pdfconverter-x2iw.onrender.com/convert", {
+  const res = await fetch("http://localhost:5000/convert", {
     method: "POST",
     headers: {
-      "x-api-key": "key.super.secret2t@&$"
+      "x-api-key": "test123"
     },
     body: formData
-  })
-  .then(async (res) => {
-    console.log("STATUS:", res.status);
+  });
 
-    if (!res.ok) {
-      const text = await res.text();
-      throw new Error(text);
-    }
+  if (!res.ok) {
+    alert("Error");
+    return;
+  }
 
-    return res.blob();
-  })
-  .then((blob) => {
-    const url = URL.createObjectURL(blob);
+  const blob = await res.blob();
+  const url = URL.createObjectURL(blob);
 
-    // 👇 OPEN directly in same tab
-    // window.location.href = url;
-
-    // OR if you want new tab:
-    window.open(url, "_blank");
-  })
-  .catch(err => console.error(err));
-}
+  // 🔥 OPEN PDF VIEWER
+  window.open(url, "_blank");
+});
 </script>
 
 </body>

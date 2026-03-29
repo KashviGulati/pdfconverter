@@ -1,9 +1,17 @@
 FROM node:18
 
-# Install LibreOffice
+# Install LibreOffice + fonts + dependencies
 RUN apt-get update && \
-    apt-get install -y libreoffice && \
-    apt-get clean
+    apt-get install -y \
+    libreoffice \
+    libreoffice-writer \
+    fonts-dejavu \
+    fonts-liberation \
+    fonts-freefont-ttf \
+    ttf-mscorefonts-installer \
+    fontconfig \
+    && fc-cache -f -v \
+    && apt-get clean
 
 # Set working directory
 WORKDIR /app
