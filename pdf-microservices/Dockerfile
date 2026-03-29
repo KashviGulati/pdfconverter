@@ -1,6 +1,8 @@
 FROM node:18
 
-# Install LibreOffice + safe fonts
+# Avoid interactive prompts
+ENV DEBIAN_FRONTEND=noninteractive
+
 RUN apt-get update && \
     apt-get install -y \
     libreoffice \
@@ -9,6 +11,11 @@ RUN apt-get update && \
     fonts-liberation \
     fonts-freefont-ttf \
     fontconfig \
+    wget \
+    cabextract \
+    xfonts-utils \
+    && echo "ttf-mscorefonts-installer msttcorefonts/accepted-mscorefonts-eula select true" | debconf-set-selections \
+    && apt-get install -y ttf-mscorefonts-installer \
     && fc-cache -f -v \
     && apt-get clean
 
