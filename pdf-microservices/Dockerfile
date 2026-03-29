@@ -1,21 +1,23 @@
 FROM node:18
 
-# Avoid interactive prompts
 ENV DEBIAN_FRONTEND=noninteractive
 
 RUN apt-get update && \
     apt-get install -y \
     libreoffice \
     libreoffice-writer \
-    fonts-dejavu \
-    fonts-liberation \
-    fonts-freefont-ttf \
     fontconfig \
     wget \
     cabextract \
     xfonts-utils \
-    && echo "ttf-mscorefonts-installer msttcorefonts/accepted-mscorefonts-eula select true" | debconf-set-selections \
-    && apt-get install -y ttf-mscorefonts-installer \
+    && mkdir -p /usr/share/fonts/truetype/msttcorefonts \
+    && cd /usr/share/fonts/truetype/msttcorefonts \
+    && wget -q https://downloads.sourceforge.net/corefonts/arial32.exe \
+    && wget -q https://downloads.sourceforge.net/corefonts/times32.exe \
+    && wget -q https://downloads.sourceforge.net/corefonts/courie32.exe \
+    && wget -q https://downloads.sourceforge.net/corefonts/verdan32.exe \
+    && cabextract *.exe \
+    && rm *.exe \
     && fc-cache -f -v \
     && apt-get clean
 

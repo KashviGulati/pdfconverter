@@ -8,13 +8,13 @@ require("dotenv").config();
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-const libreOfficePath = "soffice"; // change in docker
+const libreOfficePath ="soffice" // change in docker
 
 // ================= CORS =================
 const allowedOrigins = [
   "http://127.0.0.1:5500",
   "http://localhost:5173",
-  "https://www.docuvio.co.in/"
+  "https://www.docuvio.co.in"
 ];
 
 app.use((req, res, next) => {
@@ -71,8 +71,7 @@ app.post("/convert", upload.single("file"), (req, res) => {
 
   if (!fs.existsSync(outputDir)) fs.mkdirSync(outputDir);
 
-  const command = `${libreOfficePath} --headless --convert-to pdf "${inputPath}" --outdir "${outputDir}"`;
-
+const command = `${libreOfficePath} --headless --invisible --nocrashreport --nodefault --nolockcheck --nofirststartwizard --convert-to pdf:writer_pdf_Export "${inputPath}" --outdir "${outputDir}"`;
   exec(command, (err) => {
     if (err) {
       console.error(err);

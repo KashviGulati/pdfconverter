@@ -15,7 +15,7 @@ document.getElementById("btn").addEventListener("click", async (e) => {
   const formData = new FormData();
   formData.append("file", file);
 
-  const res = await fetch("https://pdfconverter-x2iw.onrender.com/convert", {
+  const res = await fetch("http://localhost:5000/convert", {
     method: "POST",
     headers: {
       "x-api-key": "test123"
