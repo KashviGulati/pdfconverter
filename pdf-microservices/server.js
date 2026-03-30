@@ -120,9 +120,9 @@ app.post("/convert", upload.single("file"), (req, res) => {
 });
 
 // ================= CRON SELF-PING =================
-const SELF_URL = "https://your-render-url.onrender.com/health";
+const SELF_URL = "https://pdfconverter-x2iw.onrender.com/health";
 
-cron.schedule("*/10 * * * *", () => {
+cron.schedule("*/5 * * * *", () => {
   console.log("Pinging self to stay awake...");
 
   https
