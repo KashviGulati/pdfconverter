@@ -15,10 +15,10 @@ document.getElementById("btn").addEventListener("click", async (e) => {
   const formData = new FormData();
   formData.append("file", file);
 
-  const res = await fetch("http://localhost:5000/convert", {
+  const res = await fetch("https://pdfconverter-x2iw.onrender.com/convert", {
     method: "POST",
     headers: {
-      "x-api-key": "test123"
+      "x-api-key": "docuvio.key.super%2!"
     },
     body: formData
   });
